@@ -1,0 +1,28 @@
+Kerjakan soal berikut: 
+
+Bendungan Katulampa terletak di Kota Bogor, Jawa Barat, dibangun untuk tujuan irigasi dan peringatan dini atas air yang sedang mengalir ke Jakarta dengan water level / tinggi muka air sebagai indikatornya. Jika level air 200 cm atau lebih, maka disebut sebagai Siaga 1. Namun apabila level air mulai 150 cm atau kurang dari 200 cm, disebut Siaga 2. Dikatakan Siaga 3 ketika level air berada di ketinggian 80 cm sampai dengan sebelum 150 cm.
+
+Seorang developer memetakan proses tersebut ke dalam sebuah program berikut :
+
+public class Katulampa{
+ public String checkStatus(double level){
+  String pesan = "";
+  if(level >= 200){
+    pesan = "SIAGA1";
+  }else if(level>=150 && level<=199){
+    pesan = "SIAGA2";
+  }else if(level>=80 && level<=149){
+    pesan = "SIAGA3";
+  }else{
+    pesan = "SIAGA4";
+  }
+ }
+}
+
+Tugas anda sebagai Software tester adalah: 
+a. Buatlah Control Flow Graph dari method checkStatus ! (10 poin)
+b. Buatlah path dari masing-masing kemungkinan (soal 1) ! (10 poin)
+c. Buatlah sebuah class JUnit untuk mengimplementasikan pengujian unit ! (20 poin)
+d. Lakukan static analysis pada kode checkStatus. Apakah kode tersebut sudah sesuai dengan fungsinya? Jelaskan jawaban apakah sudah/belum sesuai, lengkap dengan alasannya (10 poin). 
+
+Petunjuk no.4: lengkapi alasan anda dengan data tes, contoh bila level=10 maka [penjelasan].
