@@ -1,0 +1,2131 @@
+
+<!-- saved from url=(0052)https://www.cise.ufl.edu/~mssz/CompOrg/CDA-lang.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><title>Organization of Computer Systems: ISA, Machine Language, Number Systems</title>
+</head><body bgcolor="#ffffff" text="#000000" link="#0000ee">
+
+<hr>
+<blockquote>
+<h2>Organization of Computer Systems: <br> 
+§ 2: ISA, Machine Language, and Number Systems </h2>
+<h4>Instructor: <a href="mailto:mssz@cise.ufl.edu"> M.S. Schmalz</a> </h4>
+</blockquote>
+<hr><p>
+</p><blockquote>
+
+<a name="Sec2.0"></a>
+<p><a href="https://www.cise.ufl.edu/~mssz/CompOrg/PatHen-Readings.html#ExSec2.0"><b>Reading Assignments and Exercises</b></a> 
+
+</p><p align="JUSTIFY">This section is organized as follows:
+
+</p><p></p><ul>
+            2.1. ISA and Machine Language <br>
+            2.2. Instruction Representation  <br>
+            2.3. Decision Instructions and Procedure Support  <br>
+            2.4. Number Representations, Data Types and Addressing  <br>
+            2.5. MIPS Programs  <br>
+            2.6. Pointers and Arrays 
+</ul>
+
+
+<p align="JUSTIFY">Information contained herein was compiled from a
+variety of text- and Web-based sources, is intended as a teaching aid
+only (to be used in conjunction with the <a href="https://www.cise.ufl.edu/~mssz/CompOrg/req-text.html">required text</a>, and is not to be used for any
+commercial purpose.  Particular thanks is given to Dr. Enrique Mafla
+for his permission to use selected illustrations from his course notes
+in these Web pages.
+
+<a name="Sec2.1"></a>
+</p><p><a href="https://www.cise.ufl.edu/~mssz/CompOrg/PatHen-Readings.html#ExSec2.1"><b>Reading Assignments and Exercises</b></a> 
+</p><h3>2.1. ISA and Machine Language </h3>
+
+<p><a href="https://www.cise.ufl.edu/~mssz/CompOrg/PatHen-Readings.html#ExSec2.1"><b>Reading Assignments and Exercises</b></a> 
+
+</p><p align="JUSTIFY">The instruction set architecture (ISA) is a protocol
+that defines how a computing machine appears to a machine language
+programmer or compiler.  The ISA describes the (1) memory model, (2)
+instruction format, types and modes, and (3) operand registers, types,
+and data addressing.  Instruction types include <i>arithmetic</i>,
+<i>logical</i>, <i>data transfer</i>, and <i>flow control</i>.
+Instruction modes include <i>kernel</i> and <i>user</i> instructions.
+
+</p><p align="JUSTIFY">ISAs are specified in formal definition documents,
+for example, for the V9 SPARC machine and Java Virtual Machine.
+
+</p><h4>2.1.1. Hierarchical View</h4>
+
+<p align="JUSTIFY">As discussed previously, computing languages are
+translated from <i>source code</i> to <i>assembly language</i> to
+<i>machine language</i>, as illustrated notionally in Figure 2.1.
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/Figure2.1-CompLang.gif"><br><br>
+<b>Figure 2.1.</b> Example of computing language translation,
+adapted from [Maf01]</p>
+
+<p align="JUSTIFY">The implementation of the ISA in hardware is couched
+in terms of the <i>fetch-decode-execute cycle</i> illustrated in
+Figure 2.2.  In the <i>fetch</i> step, operands are retrieved from
+memory.  The <i>decode</i> step puts the operands into a format that
+the ALU can manipulate.  The <i>execute</i> cycle performs the
+selected operation within the ALU.  Control facilitates orderly
+routing of data, including I/O to the ALU's external environment
+(e.g., peripheral devices such as disk or keyboard).
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/Figure2.2-FDEcycle.gif"><br><br>
+<b>Figure 2.2.</b> Basic ISA cycle, where fetch gets operands from
+memory, decode translates the operands into a format the ALU can
+accept, and execute performs an ALU operation on the decoded operands - 
+adapted from [Maf01]</p>
+
+<h4>2.1.2. Machine Language</h4>
+
+<p align="JUSTIFY">Machne language instructions are of four types:
+Arithmetic, Logical, Data transfer, and Branches (also called <i>flow
+control</i>), as follows:
+
+</p><ul><p></p><li><i>Arithmetic</i>: <code>add</code> (addition),
+<code>sub</code> (subtraction), <code>mult</code> (multiplication),
+<code>div</code> (division)
+
+<p></p></li><li><i>Logical</i>: <code>and</code>, <code>or</code>,
+<code>srl</code> (shift right logical), <code>ssl</code> (shift left
+logical)
+
+<p></p></li><li><i>Data Transfer</i>: <code>lw</code> (load word),
+<code>sw</code> (store word), <code>lui</code> (load upper immediate)
+
+<p></p></li><li><i>Branches</i>: 
+
+<ul><p></p><li><i>Conditional:</i> <code>beq</code> (branch on equal),
+<code>bne</code> (branch on not-equal), <code>slt</code> (set on less-than),
+</li></ul>
+
+<ul><p></p><li><i>Unconditional:</i> <code>j</code> (jump),
+<code>jr</code> (jump register), <code>jal</code> (jump-and-link)
+</li></ul>
+
+</li></ul>
+
+<p align="JUSTIFY">The MIPS instruction format uses the KISS principle
+(keep it simple and stupid).  As we say more formally:
+
+</p><blockquote>
+<b>Design Principle #1:</b> <i>Simplicity favors regularity.</i>
+</blockquote>
+
+<p align="JUSTIFY">This means that the MIPS instruction format is
+the same for all instructions.  Each instruction begins with an
+<i>opcode</i> that tells the machine what to do, followed by one
+to three <i>operand symbols</i>.  
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/Figure2.3-MIPSinstr.gif"><br><br>
+<b>Figure 2.3.</b> MIPS instruction - simple addition example,
+adapted from [Maf01].  These instructions are <i>symbolic</i>
+examples of what MIPS actually understands.</p>
+
+<p align="JUSTIFY">As an example of the symbolic notation used in
+Figure 2.3, consider the following equation, expressed in C
+language format, accompanied by its translation into MIPS assembly
+language:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-ex1.gif"></p>
+
+<p align="JUSTIFY">Symbolic names make assembly language code more
+readable.  In the preceding example, note that we have <i>temporary
+variables</i> t0 and t1, as well as <i>input/result</i> variables f,
+g, h, i, and j.  In MIPS, we also have eight <i>temporary
+registers</i> labelled <code>$t0</code> through <code>$t7</code> and
+nine <i>s-registers</i> labelled <code>$s0</code> through
+<code>$s8</code>.  The s-registers can be thought of as containing
+data that are typically stored in C variables.  Thus, in MIPS, operands
+cannot be any variable, and there are only thirty-two 32-bit registers
+(a memory location that holds 32 bits).  This conforms to the
+following observation:
+
+</p><blockquote>
+<b>Design Principle #2:</b> <i>Smaller is faster.</i>
+</blockquote>
+
+Thus, in proper MIPS code, the preceding example would become:
+
+<p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-ex2.gif"></p>
+
+<h4>2.1.3. MIPS Memory</h4>
+
+<p align="JUSTIFY">Memory contains instructions and data specific to a
+given program.  Instructions are fetched <i>automatically</i> by
+control, while data is transferred <i>explicitly</i> between the
+memory and processor.  Figure 2.4 shows an example of memory
+operations in MIPS using the <code>lw</code> (load word) and
+<code>sw</code> (store word) instructions.
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/Figure2.4-MIPSmemory1.gif"><br><br>
+<b>Figure 2.4.</b> Use of <code>lw</code> and <code>sw</code> instructions
+to transfer data between memory and processor,
+adapted from [Maf01].  
+</p>
+
+<p align="JUSTIFY">Here, data is organized in <i>linear memory</i> as a
+stream of bits.  Each <i>byte</i> is comprised of eight contiguous
+bits, and each <i>word</i> is comprised of four contiguous bytes. 
+
+</p><p align="JUSTIFY">Data stored in memory is referenced using an
+<i>address</i>, which is an identifier that points to a byte in
+memory.  Addresses in MIPS range from 0 (which points to data in the
+part of memory denoted as <code>M[0]</code>) up to 4,294,967,292
+(referenced data is written as <code>M[2<sup>32</sup>]</code>).  Thus,
+all addresses are 32 bits long, so 2<sup>30</sup> 32-bit (four-byte)
+words are stored in MIPS memory.
+
+</p><p align="JUSTIFY">Only load/store instructions can access data in
+memory.  Since each word has length 4 bytes, the addresses referenced
+by these instructions must be <i>aligned</i>, that is, all 32-bit
+words start at addresses 0, 4, ..., 4n.  Because of differences
+between computer manufacturers and the way different machines address
+memory, the MIPS address formats have two types of encoding: <i>big
+endian</i> and <i>little endian</i>, as shown in Figure 2.5.  Here, a
+decimal (base-10) address of 3,101 is broken down into a
+<i>hexadecimal</i> (base-16) address of (00 00 0c 1d)<sub>16</sub>.
+Big endian stores the big part (00) at the top or beginning of the
+address, and little endian is the reverse of big endian (stores (1d)
+at the beginning of the address).
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/Figure2.5-Endians.gif"><br><br>
+<b>Figure 2.5.</b> Example of big and little endian encoding,
+adapted from [Maf01].  
+</p>
+
+<p align="JUSTIFY">There are other interesting things you can do with
+memory addressing, such as <i>offsets</i>.  For example, suppose you
+wanted to add a number in memory location <code>A[2]</code> and put
+the result in <code>A[0]</code>.  We know that <code>A[2]</code> has
+the larger address, and this can be loaded using an offset of 8, as
+shown in Figure 2.6.  Here, the register <code>$s1</code> represents
+the <i>base address</i>, and the contents of the variable <i>h</i> are
+stored in register <code>$s2</code>.
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/Figure2.6-MemOffset.gif"><br><br>
+<b>Figure 2.6.</b> Example of memory offsets, 
+adapted from [Maf01].  The circled operands show how an address offset
+is represented in a MIPS instruction.
+</p>
+
+<a name="Sec2.2"></a>
+<h3>2.2. Instruction Representation</h3>
+
+<p><a href="https://www.cise.ufl.edu/~mssz/CompOrg/PatHen-Readings.html#ExSec2.2"><b>Reading Assignments and Exercises</b></a> 
+
+</p><p align="JUSTIFY">Computer instructions are based on three number systems:
+decimal, binary, and hexadecimal.  Salient features of these systems 
+include:
+
+</p><ul><p></p><li><b>Binary</b>:
+
+    <ul><p></p><li><i>Digits</i> = {0,1}  (Base 2)
+
+        <p></p></li><li><i>Composition Rule</i> = (d<sub>n-1</sub>,
+                    d<sub>n-2</sub>, ..., d<sub>1</sub>,
+                    d<sub>0</sub>)<sub>2</sub> =&gt; d<sub>n-1</sub>
+                    · 2<sup>n-1</sup> + d<sub>n-2</sub> ·
+                    2<sup>n-2</sup> + ... + d<sub>1</sub> ·
+                    2<sup>1</sup> + d<sub>0</sub> · 2<sup>0</sup>
+
+        <p></p></li><li><i>Example</i> = (1010)<sub>2</sub> = 1 · 8 + 0
+        · 4 + 1 · 2 + 0 · 1 = 8 + 2 = 10
+    </li></ul>
+
+        <p></p></li><li><b>Decimal</b>:
+
+    <ul><p></p><li><i>Digits</i> = {0,1,2,3,4,5,6,7,8,9}  (Base 10)
+
+        <p></p></li><li><i>Composition Rule</i> = (d<sub>n-1</sub>,
+                    d<sub>n-2</sub>, ..., d<sub>1</sub>,
+                    d<sub>0</sub>)<sub>10</sub> =&gt; d<sub>n-1</sub>
+                    · 10<sup>n-1</sup> + d<sub>n-2</sub> ·
+                    10<sup>n-2</sup> + ... + d<sub>1</sub> ·
+                    10<sup>1</sup> + d<sub>0</sub> · 10<sup>0</sup>
+
+        <p></p></li><li><i>Example</i> = (2041)<sub>10</sub> = 1 · 1000 + 0
+        · 100 + 4 · 10 + 1 · 1 = 2000 + 40 + 1 = 2,041
+    </li></ul>
+
+<p></p></li><li><b>Hexadecimal</b>:
+
+    <ul><p></p><li><i>Digits</i> = {0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f}  (Base 16)
+
+        <p></p></li><li><i>Composition Rule</i> = (d<sub>n-1</sub>,
+                    d<sub>n-2</sub>, ..., d<sub>1</sub>,
+                    d<sub>0</sub>)<sub>16</sub> =&gt; d<sub>n-1</sub>
+                    · 16<sup>n-1</sup> + d<sub>n-2</sub> ·
+                    16<sup>n-2</sup> + ... + d<sub>1</sub> ·
+                    16<sup>1</sup> + d<sub>0</sub> · 16<sup>0</sup>
+
+        <p></p></li><li><i>Example</i> = (c02a)<sub>16</sub> = 12 ·
+        16<sup>3</sup> + 0 · 16<sup>2</sup> + 2 ·
+        16<sup>1</sup> + 10 · 1 = 49,152 + 32 + 10 = 49,194
+    </li></ul>
+</li></ul>
+
+<p align="JUSTIFY">The basic operating concept of modern computers is
+the <i>stored program</i>, by which programs can be loaded into
+various partitions (blocks) of memory, then retrieved and loaded into
+the processor.  In the preceding section, we noted that the CPU
+control does this automatically.  In hardware, this is typically
+accomplished by a device called an <i>instruction sequencer</i>.
+
+</p><h4>2.2.1. Machine Language Instruction Format</h4>
+
+<p align="JUSTIFY">In machine language, all instructions have the same length.
+In MIPS, this design compromise produces instructions that are 32 bits long.
+The governing principle follows:
+
+</p><blockquote>
+<b>Design Principle #3:</b> <i>Good design demands good compromises.</i>
+</blockquote>
+
+<p align="JUSTIFY">MIPS instructions have three different formats:
+
+</p><ol><p></p><li><i>R format</i> - Arithmetic instructions
+    <p></p></li><li><i>I format</i> - Branch, transfer, and immediate instructions
+    <p></p></li><li><i>J format</i> - Jump instructions
+</li></ol>
+
+<p align="JUSTIFY">These formats are further explained in Figure 2.7.
+Note that jump instructions merely transfer control (execution) to the
+specified memory address.  As a result, J-format instructions are not
+very interesting, so we will concentrate the remainder of
+discussion in this section on R- and I-format instructions.
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/Figure2.7-MIPSinstrFmt.gif"><br><br>
+<b>Figure 2.7.</b> MIPS instruction format,
+adapted from [Maf01].
+</p>
+
+<blockquote>
+<p align="JUSTIFY"><b>Example 1.</b> Consider an example of an
+R-format instruction <code>add $t0 $s1 $s2</code>, which means that we
+add two numbers stored in C registers 1 and 2 (<code>$s1</code> and
+<code>$s2</code>), then put the result in temporary register 0
+(<code>$t0</code>).  Here, <code>$t0</code> has the address <code>8</code>,
+and the C-registers have the addresses <code>17</code> and <code>18</code>.
+The "$" sign means <i>contents-of</i>.  For example <code>$18</code> means
+<i>contents of register whose address is 18</i>.  Also, note that the
+order of the operands in the machine language instruction (ones and zeros)
+is different than in the assembly-language version.
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPSaddInstr-Ex1.gif"></p>
+
+</blockquote>
+
+<blockquote>
+<p align="JUSTIFY"><b>Important Note.</b> MIPS has several register
+conventions that you should know, which are summarized in the
+following table.  These conventions will be observed as we progress
+toward more involved MIPS programs.
+
+</p><p align="CENTER"><b>Table 2.1.</b> MIPS Register Conventions, adapted
+from [Maf01]<br> <img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/Table2.1-MIPSregisters.gif"></p>
+</blockquote>
+
+<blockquote>
+<p align="JUSTIFY"><b>Example 2.</b> A slightly different example of an
+R-format instruction involves subtraction - <code>sub $t1 $s1
+$s2</code>, which means that we add two numbers stored in C registers
+1 and 2 (<code>$s1</code> and <code>$s2</code>), then put the result
+in temporary register 1 (<code>$t1</code>).  Here, <code>$t1</code>
+has the address <code>9</code>, and the C-registers have the addresses
+<code>17</code> and <code>18</code>, as before.  Note that the
+<code>funct</code> code for subtraction (34) is different from that
+for addition (32), and that there is no shifting.
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPSaddInstr-Ex2.gif"></p>
+
+<p align="JUSTIFY"><b>Example 3.</b> Consider an example of an
+I-format instruction that involves loading a word - <code>lw $t0
+52($s3) </code>, which means that we load a word into register
+<code>$t0</code>, which has address 8, by fetching the data from
+memory location <code>$s3</code>, which has address 19, with an offset
+of 52.
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPSloadInstr-Ex1.gif"></p>
+
+<p align="JUSTIFY"><b>Example 4.</b> Another example of an 
+I-format instruction involves storing a word - <code>sw $t0
+52($s3)</code>, which is the opposite of the instruction in  
+Example 3.  Note that the opcode for store (43) is
+different from that for load (35), and that the addresses are
+kept the same, for simplicity.
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPSloadInstr-Ex2.gif"></p>
+</blockquote>
+
+<p align="JUSTIFY">We next assemble these concepts together to show how
+an instruction is translated from a high-level language to assembly
+language, and thence to machine language.
+
+</p><blockquote>
+<p align="JUSTIFY"><b>Example 5.</b> Given the high-level
+statement <code>A[300] = h + A[300];</code> the following
+translation sequence holds:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPScompile-Ex1.gif"></p>
+</blockquote>
+
+<p align="JUSTIFY">Note that <code>A[300]</code> is stored in memory
+with an offset of 1200.  This is due to the 32-bit word length (four
+bytes) that we discussed in Section 2.1.  Since memory is structured
+as a linear array of bytes, to obtain the correct byte offset to
+maintain word alignment, we need to multiply the memory location in
+source code by the word length (e.g., byte offset 1200 = word 300
+· 4 bytes/word).
+
+</p><h4>2.2.3. Special Cases</h4>
+
+<p align="JUSTIFY">Thus far, we have overviewed the basic add, sub, load,
+and store instructions.  However, MIPS has several special cases of these
+instructions, which are designed to make programs run much faster.  We
+consider these special cases, as follows.
+
+</p><p align="JUSTIFY"><b>2.2.3.1. Addition of Constants.</b> By analyzing
+large bodies of source code (also called <i>corpi</i>, the plural of
+<i>corpus</i>), the developers of MIPS were able to determine that
+small constants are used frequently and comprise approximately 50
+percent of operands.  For example, <code>A = A + 5;</code> and <code>C
+= D - 1;</code> respectively are common types of <i>increment</i> or
+<i>decrement</i> statements.  In general, if an event occurs 50
+percent or more of the time, then it is called the <i>common case</i>,
+and the following principle applies:
+
+</p><blockquote>
+<b>Design Principle #4:</b> <i>Make the common case fast.</i>
+</blockquote>
+
+<p align="JUSTIFY">As a result of this concept, MIPS puts typical
+constants in memory and loads them into special <i>hardwired</i>
+registers (e.g., <code>$0</code>).
+
+</p><blockquote>
+<p align="JUSTIFY"><b>Example 6.</b> Consider the following <i>add
+immediate</i> instruction for addition of a register and a constant
+(I-format):
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPSaddInstr-Ex3.gif"></p>
+
+<p align="JUSTIFY">Here, the contents of C-register <code>$s7</code> are
+added to the constant 4 and put into the temporary register
+<code>$t0</code>.  The constant 4 is represented at the right-hand
+part of the instruction as a two-byte (16-bit) value.  The opcode for
+<code>addi</code> is 8, which is different from the <code>add</code>
+instruction's opcode (per Example 1, above).  As in our previous
+examples, <code>$t0</code> has the address 7, and it is readily
+determined that <code>$s7</code> has the address 23.
+</p></blockquote>
+
+<p align="JUSTIFY"><b>2.2.3.2. Overflow.</b> Compilers have limited
+precision (usually 32 bits).  If a result of an addition or
+multiplication is a number that requires a binary representation
+larger than 32 bits, then we have a problem.  We call this situation
+<i>register overflow</i>, because the number to be loaded into the
+register is larger (i.e., has more bits) than the register can
+accomodate.
+
+</p><p align="JUSTIFY">Some high-level languages (e.g., Ada and certain Fortran
+compilers) detect overflow, while others (e.g., C) do not.  MIPS
+provides two types of arithmetic instructions:
+
+</p><ol><p></p><li><i>add, sub, addi</i> cause overflow; while
+
+    <p></p></li><li><i>addu, subu, addiu</i> do not cause overflow.
+</li></ol>
+
+<p align="JUSTIFY">MIPS C compilers produce <code>addu</code>,
+<code>subu</code>, and <code>addiu</code> instructions by default,
+thereby extending the ANSI standard C language specification.
+
+</p><p align="JUSTIFY"><b>2.2.3.3. Logical Operations.</b> In MIPS, a
+logical constant is expressed as a vector of 32 ones and zeroes,
+not as an integer number.  This leads to the practice of <i>bitwise
+logical operations</i> that operate in parallel upon a vector of
+Boolean numbers, for example:
+
+</p><p align="CENTER">(0010 0001 0100) = (0010 0001 0110) <i>and</i> (1010 0011 0101)
+</p>
+
+<p align="JUSTIFY">In MIPS instructions <i>and</i> and <i>or</i>, the
+operands are registers, and the R-format instruction is used (similar
+to the <i>add</i> instruction in Example 1, above).  In contrast, MIPS
+instructions <code>andi</code> and <code>ori</code> have operands that
+are immediates, and the I-format instruction is used. An example of
+the I-format logical instruction follows.
+
+</p><blockquote>
+<p align="JUSTIFY"><b>Example 7.</b> Consider the following <code>andi</code> 
+instruction for and-ing a register and a logical constant (a Boolean
+number):
+
+</p><p align="CENTER"><b>andi $t0, $t0, 0xFFF</b><br>
+<img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPSlogicalInstr-Ex1.gif"></p>
+
+<p align="JUSTIFY">This instruction has several interesting
+characteristics.  The first operand is stored in register t0, and is
+<i>and</i>ed with a logical constant specified in hexadecimal as
+0xFFF.  This representation means <i>fill the word with zeroes until
+you get to the last three digits, which are f, f, and f</i>.  Since
+F<sub>16</sub> = (1111)<sub>2</sub>, we have the second operand shown
+above.  When the logical <i>and</i> operation is applied bitwise to
+these operands, the result is shown below the line.  Note that the
+word 0xFFF is called a <i>mask</i> because <i>and</i>ing causes the
+result to be zero (one) in those bit positions where the mask has the
+value of zero (resp. one).
+</p></blockquote>
+
+<p align="JUSTIFY"><b>2.2.3.4. Shift Instructions.</b> In order to move
+the contents of a register to the left or right efficiently, MIPS has
+a dedicated shift capability that is controlled by the following
+<i>shift instructions</i>:
+
+</p><ul><p></p><li><i>sll</i> (shift left logical): fills empty bits with zeroes
+
+    <p></p></li><li><i>srl</i> (shift right logical): fills empty bits with zeroes
+
+    <p></p></li><li><i>sra</i> (shift right arithmetic): sign extends empty bits
+</li></ul>
+
+<blockquote>
+<p align="JUSTIFY"><b>Example 8.</b> Assume that the R-format
+instruction <code><b>srl $t0, $s1, 8</b></code> is applied as shown
+below.  The <i>shift amount</i>, represented as <i>shamt</i>, is
+the number of bits to shift the operand <code>$s1</code> to yield the
+result in <code>$t0</code>.
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPSshiftInstr-Ex1.gif"></p>
+
+<p align="JUSTIFY">Since the instruction is R-format, note that the opcode
+is modified by the <i>funct</i> descriptor (000010) that occupies the
+last six bits of the instruction.  Shift instructions are used for a
+wide variety of operations, including the pencil-and-paper algorithm
+for multiplication of binary numbers.
+</p></blockquote>
+
+<p align="JUSTIFY"><b>2.2.3.5. Multiplication and Division.</b> We will
+discuss multiplication and division in MIPS in detail in Section 3.3.  
+For now, consider the following information as useful in the context of the
+MIPS instruction format.
+
+</p><p align="JUSTIFY">Multiplication and division of two N-bit numbers
+produce a result that can be as large as 2N significant digits (i.e.,
+2N bits).  As a result, MIPS uses two registers, called <i>hi</i> and
+<i>lo</i>, to store the upper and lower parts of the product (for
+multiplication) as well as the remainder and quotient (for division).
+
+</p><blockquote>
+<p align="JUSTIFY"><b>Example 9.</b> Assume that <code><b>mult $s0,
+$s1</b></code> produces the product of registers <code>s0</code> and
+<code>s1</code>.  In order to get the high and low part of the product
+into 32-bit registers <code>s2</code> and <code>s3</code>, so the product can
+be further manipulated, the following instructions would be used:
+
+</p><pre>        mfhi $s2
+        mflo $s3
+</pre>
+            
+</blockquote>
+
+<h4>2.2.4. Assembly vs. Machine Language</h4>
+
+<p align="JUSTIFY">Assembly language is a convenient symbolic notation
+that is much easier to write and understand than a stream of ones and
+zeroes (machine language).  In MIPS assembly language notation, the
+destination (result) is first in the operand list.  This is generally
+the convention for the vast majority of assembly languages. 
+
+</p><p align="JUSTIFY">In contrast, machine language is the underlying
+reality of program representation (bit stream) that is fed into
+the processor.  Each machine language instruction has the destination
+(result) register in the last position.
+
+</p><p align="JUSTIFY">Although assembly language can provide convenient
+pseudo-instructions, it is the machine language instruction that is
+actually executed.
+
+</p><blockquote>
+<p align="JUSTIFY"><b>Important Note:</b> When counting instructions to
+calculate the instruction count (IC) of a given program, count
+<i>machine language instructions</i>, since they are the only
+instructions executed.  If you count assembly language instructions,
+then you will have an IC that is misleadingly small, since one
+assembly language instruction can be translated to several machine
+language instructions.
+</p></blockquote>
+
+<p align="JUSTIFY">This concludes our overview of MIPS instruction
+format.  We next examine how the MIPS architecture supports 
+decision instructions and procedures.
+
+<a name="Sec2.3"></a>
+</p><h3>2.3. Decision Instructions and Procedure Support</h3>
+
+<p><a href="https://www.cise.ufl.edu/~mssz/CompOrg/PatHen-Readings.html#ExSec2.3"><b>Reading Assignments and Exercises</b></a> 
+
+</p><p align="JUSTIFY">Decision instructions express
+<i>control flow</i> in computer program execution.  Important
+types of decision instructions include:
+
+</p><ul><p></p><li><i>Conditional Branch</i> such as <code>if-then</code>
+           or <code>if-then-else</code>
+
+    <p></p></li><li><i>Loops</i> such as <code>while</code>, <code>do-while</code>,
+           and <code>for</code>
+
+    <p></p></li><li><i>Inequalities</i> that form the basis of <i>logical predicates</i>
+
+    <p></p></li><li><i>Switch Statements</i> that allow one to choose among multiple
+           evaluations of a given variable
+</li></ul>
+
+<h4>2.3.1. Conditional Branches</h4>
+
+<p align="JUSTIFY">Conditional branch instructions in MIPS have the
+following format:
+
+</p><p align="CENTER"><code><b>opcode</b> register1, register2,
+destination_address</code></p>
+
+<p align="JUSTIFY">where <i>opcode</i> is either <code>beq</code>
+(branch on equality) or <code>bne</code> (branch on inequality).
+These instructions compare the contents of <code>register1</code> and
+<code>register2</code> to determine if they are equal.  If equal (not
+equal), then <code>beq</code> (<code>bne</code>) transfers control to
+<code>destination_address</code>.  Otherwise, control is transferred
+to the next instruction in the machine language instruction sequence.
+
+</p><p align="JUSTIFY">MIPS decision instructions have the machine language
+format described in Section 2.2 of these notes.  An example follows.
+
+</p><blockquote>
+<p align="JUSTIFY"><b>Example 1.</b> Suppose we have the following MIPS
+assembly language instruction:
+
+</p><p align="CENTER"><code>beq $s3, $s4, 20</code></p>
+
+<p align="JUSTIFY">The registers have addresses 19 and 20, the opcode is
+4 (for <i>beq</i>) and the destination address is 5 (the 20th byte is
+in the fifth word, since each word is 4 bytes long).  Thus, we have:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPSbeq-Ex1.gif"></p>
+</blockquote>
+
+<p align="JUSTIFY">In MIPS, there is no need to calculate the addresses for
+branches - the assembler does this for you, as shown in the following
+example.  
+
+</p><blockquote>
+<p align="JUSTIFY"><b>Example 2.</b> Suppose we have the following high-level
+language code:
+
+</p><pre>       if (i == j) go to L1;
+       f = g + h;
+  L1:  f = f - i;
+</pre>
+
+<p>where register assignments are:
+
+</p><pre>    f =&gt; $s0 , g =&gt; $s1 , h =&gt; $s2
+    i =&gt; $s3 , j =&gt; $s4
+</pre>
+
+<p>The corresponding MIPS assembly code is as follows:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPSbeq-Ex2.gif"></p>
+</blockquote>
+
+<h4>2.3.2. Jump Instruction</h4>
+
+<p align="JUSTIFY">The MIPS <i>jump</i> instruction functions like the
+<i>go to</i> instruction in C, that is, control is transferred to a
+specific destination address in memory.  The instruction format is
+either of the following two forms:
+
+</p><pre>      j  <b>label</b>
+      j  <b>destination_address</b>
+</pre>
+
+<p>where <i>label</i> is shown as "L1" in Example 2 of Section 2.3.1.
+Here, <i>label</i> is a string and <i>destination_address</i> is a
+numberical constant within the range of permissible MIPS address
+values.
+
+</p><blockquote>
+<p align="JUSTIFY"><b>Example 3.</b> Suppose we have the following assembly
+language code:
+
+</p><pre>      j 1024
+</pre>
+
+<p>The corresponding MIPS machine language representation follows:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPSjump-Ex1.gif"></p>
+
+<p align="JUSTIFY">As before, the machine language address representation
+is calculated as 256 = 1024 bytes / 4 bytes/word.
+
+</p><p align="CENTER"><code>beq $s3, $s4, 20</code></p>
+</blockquote>
+
+<h4>2.3.3. If Statements</h4>
+
+<p align="JUSTIFY">The purpose of an <i>if</i> statement is to provide
+conditional transfer of control to one or more blocks of statements,
+one of which is executed when its corresponding condition coded in the
+if-statement is satisfied.  The if-statement can be implemented using
+the infamous <i>go to</i> statement, as shown in Figure 2.8.
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/Figure2.8-ifstmt1.gif"><br><br>
+<b>Figure 2.8.</b> Implementation of an <i>if</i> statement in
+terms of high-level language using the <i>go to</i> statement,
+adapted from [Maf01].
+</p>
+
+<blockquote>
+<p align="JUSTIFY"><b>Example 4.</b> Suppose we want to translate an
+if-statement from high-level language into MIPS assembly language.
+According to the method of Figure 2.8, this would be done as follows:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-ifstmt-Ex1.gif"></p>
+
+<p align="JUSTIFY"><i>Note:</i> There is a mistake in this figure - the
+third MIPS statement (<code>j Fin</code>) should read (<code>j
+False</code>).
+</p></blockquote>
+
+<h4>2.3.4. Loop Statements</h4>
+
+<p align="JUSTIFY">Loop statements include <i>for</i>, <i>while</i>,
+and <i>do-while</i> control structures.
+
+</p><p align="JUSTIFY"><b>2.3.4.1. For-loops.</b> A simple iterative
+structure is the <i>for-loop</i>, which has the following form:
+
+</p><pre>     for <b>index</b> = <b>base</b> to <b>target</b> by <b>increment</b>
+         ...statements to be executed...
+     endfor
+</pre>
+
+<p align="JUSTIFY">where <i>index</i> is a counter to be incremented,
+<i>base</i> (<i>target</i>) is the starting (ending) value for
+<i>index</i>, and <i>increment</i> is the step value that is added to
+<i>index</i> each time control passes through the loop.  The for-loop is
+implemented in terms of the <i>go to</i> statement, as follows:
+
+</p><pre>          <b>index</b> = <b>base</b> 
+   Loop:  ...statements to be executed...
+          <b>index</b> = <b>index</b> + <b>increment</b>
+          if <b>index</b> is greater than or equal to <b>target</b> goto Fin
+          else goto Loop
+   Fin:
+</pre>
+
+<p align="JUSTIFY">This can be translated to MIPS assembly language,
+as shown in the following example.
+
+</p><blockquote>
+<p align="JUSTIFY"><b>Example 5.</b> Consider the translation of a loop
+from the preceding high-level language <i>go-to</i> format into
+MIPS assembly language, as shown in Figure 2.9.
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/Figure2.9-loop1.gif"><br><br>
+<b>Figure 2.9.</b> Implementation of a <i>loop</i> statement in
+terms of MIPS assembly language using the <i>go to</i> statement,
+with register assignments shown on the left - 
+adapted from [Maf01].
+</p>
+
+<p align="JUSTIFY">Note that the first three assembly instructions set
+the value of <code>$t1</code>, which holds the address of the memory
+element A[i].  The register <code>$t0</code> stores the value A[i]
+that is in the i-th memory element, while g is the accumulator
+variable and i represents the loop index.  The last MIPS statement
+implements the <i>loopback</i> which branches to the label
+<code>Loop</code> if the index i is less than the value h, which is
+stores in register <code>$s2</code>.
+</p></blockquote>
+
+<p align="JUSTIFY"><b>2.3.4.2. While-loops.</b> A variation of the for-loop
+is the <i>while-loop</i>, which makes the execution of statements within
+the body of the loop contingent on the satisfaction of a condition.  The
+while-loop has the following form in high-level language:
+
+</p><pre>     while (<b>condition</b>)
+       ...statements to be executed... ;
+</pre>
+
+<p align="JUSTIFY">where <i>condition</i> is a logical predicate that
+evaluates to <i>true</i> or <i>false</i>.  In each iteration of the
+loop, the while-loop first checks to see if <i>condition</i> is true.
+If <i>condition</i> evaluates to <i>false</i>, then the loop exits.
+Otherwise, the statements in the body of the loop are executed.
+
+</p><blockquote>
+<p align="JUSTIFY"><b>Example 6.</b> Consider the translation of a while-loop
+from the high-level language format to 
+MIPS assembly language, as shown in Figure 2.10.
+
+</p><p align="JUSTIFY">Here, the first three MIPS statements establish the
+loop index, which in turn establishes the address of the memory
+element save[i]. (Note that "save" is being used instead of "M", to
+accustom you to the use of different variables to describe stored
+data.)  In the fourth MIPS statement, the condition (save[i] != k) is
+checked to see if it is time to exit the loop by transferring control
+to the label <code>Exit</code>.  This is done using the
+<code>bne</code> operation.  The sixth statement comprises the body of
+the loop, where the variable i is incremented by the amount j.  The
+final MIPS statement implements loopback.
+</p></blockquote>
+
+<p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/Figure2.10-while.gif"><br><br>
+<b>Figure 2.10.</b> Implementation of a <i>while</i> statement in
+terms of MIPS assembly language using the <i>jump</i> statement,
+with register assignments shown in bold type at the top of the
+lower box, adapted from [Maf01].
+</p>
+
+<p align="JUSTIFY"><b>Analysis.</b> It is useful to examine the code in
+Figure 2.10.  A cursory technique is to calculate the number N of
+MIPS assembly instructions executed if save[i + m * j] does not equal
+k (for m = 10), or if save[i+m*j] = k (for m between 0 and 9).  In
+that case, there are 7 instructions executed per iteration of the loop
+(i = 0 to i = 9), plus five instructions executed when control exits
+the loop (because branch to <code>Exit</code> is the fifth MIPS
+instruction).  Thus, N = 10(7) + 5 = 75 instructions.
+
+</p><p align="JUSTIFY"><i>Note</i>: This technique of cursory analysis is
+acceptable in this case, because there happens to be a one-to-one
+correspondence between assembly and machine language instructions.
+However, if there were more machine language instructions than
+assembly instructions, then we would have to modify the number 7 in
+the equation N \ 10(7) + 5, to reflect that.
+
+</p><p align="JUSTIFY"><b>Optimization.</b> There is a way to make the
+MIPS program in Figure 2.10 run faster, which we call <i>partial
+loop unrolling</i>.  This involves repeating part of the loop
+body outside the loop itself, thereby allowing one to write fewer
+statements inside the loop.  The result appears as follows:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-while-optz-Ex1.gif"></p>
+
+<p align="JUSTIFY">Here, we have removed one statement from the body
+of the loop shown in Figure 2.10 by moving the initial loop setup
+operations and initial test for <i>condition</i> to a location
+before the loopback point (label <code>Loop</code>).  This allows
+us to remove the <code>j Loop</code> statement from Figure 2.10,
+combining it with the <code>beq</code> statement.  
+
+</p><p align="JUSTIFY">This partial unrolling of the loop contents and
+reordering of the loop statements results in only six statements
+per iteration of the loop, but there are still five statements in
+the loop setup (before the <code>Loop</code> label).  As a result,
+we have N = 10(6) + 5 = 65 statements, instead of 75, to perform
+the same function as Figure 2.10.  This results in a relative
+performance gain of 75/65 = 1.154, so the optimized code is 15.4
+percent faster than the code in Figure 2.10.
+
+</p><p align="JUSTIFY"><b>2.3.4.3. Dowhile Loops.</b> A variation of the 
+while loop is the <i>dowhile</i> loop.  This loop has a <i>postcondition</i>
+that is evaluated after executing the statements in the loop body,
+rather than the <i>precondition</i> of the while loop.  The general
+form of the dowhile loop in high-level language is:
+
+</p><pre>do {...statements...} while <b>condition</b></pre>
+
+<p align="JUSTIFY">where <i>condition</i> is a logical predicate.
+On the first iteration of the loop, the statements in the body of
+the loop are executed regardless of whether <i>condition</i> is
+true or false.  Then, <i>condition</i> is checked, as it is at 
+the end of every iteration thereafter.
+
+</p><blockquote>
+<p align="JUSTIFY"><b>Example 7.</b> Figure 2.11 shows the high-level
+language representation of a simple do-while statement (in the
+upper left quadrant of the figure), followed by the implementation
+in terms of <i>go-to</i> statement (upper right).  The register
+assignment (lower left) references the MIPS assembly code 
+(large box at lower right).
+</p></blockquote>
+
+<p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/Figure2.11-dowhile.gif"><br><br> <b>Figure
+2.11.</b> Implementation of a <i>dowhile</i> statement in terms of
+MIPS assembly language, with register assignments shown in the lower
+left-hand box - adapted from [Maf01].
+</p>
+
+<blockquote>
+<p align="JUSTIFY"><font color="BLUE"><b>Self-Exercise.</b> (1) Repeat the
+analysis we gave for the <i>while</i> loop (Section 2.3.4.2) to
+determine now many instructions would be executed for A[i + m * j],
+for m = 10.  (2) How could you use the optimization technique
+presented in the preceding section to make this loop more efficient?
+If this is not possible, show why. (A problem like this will likely be
+an exam question.)
+</font>
+</p></blockquote>
+
+<h4>2.3.5. Inequalities</h4>
+
+<p align="JUSTIFY">In practice, algorithms and computer programs need to
+compare values using inequalities such as (&lt;) and (&gt;).  In MIPS,
+such comparison is implemented via the <i>set on less-than</i> instruction,
+called <code>slt</code> or <code>slti</code>. The MIPS
+assembly instruction has the following format:
+
+</p><p align="CENTER"><code>slt register1 register2 register3</code> ,</p>
+
+<p align="JUSTIFY">and implements a comparison operation that has the following
+functionality (in high-level pseudocode):
+
+</p><pre>       if <b>register2 &lt; register3</b> then
+           <b>register1 = 1</b>
+       else
+           <b>register1 = 0</b>
+       endif
+</pre>
+
+<blockquote>
+<p align="JUSTIFY"><b>Example 8.</b> Suppose we want to program the
+following high-level code fragment in MIPS assembly language:
+
+</p><pre>       if (g &lt; h) then goto Less ;</pre>
+
+<p align="JUSTIFY">The following MIPS assembly code suffices:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-slt-Ex1.gif"></p>
+
+<p align="JUSTIFY">The first statement places the value 1 in register
+<code>$t0</code> if register <code>$s0</code> &lt; register
+<code>$s1</code>, and a zero otherwise.  The second statement tests
+whether or not there is a nonzero value in register <code>$t0</code>,
+by comparing it with the zero value stored in the register
+<code>$0</code>.  If the test for inequality fails (i.e., there is a
+zero in register <code>$t0</code>), then control is passed to the next
+statement.  Otherwise, control is passed to the instruction in memory
+referenced by the label <code>Less</code>.
+</p></blockquote>
+
+<p align="JUSTIFY">An alternate form of the <code>slt</code> instruction
+is <code>slti</code> (<i>set on less-than, immediate mode</i>), which
+allows comparison of register contents with a constant value that is
+hardcoded into the assembly language instruction.  The
+<code>slti</code> instruction has the following format:
+
+</p><pre>        slti register1, register2, <b>constant</b></pre>
+
+<p align="JUSTIFY">where <i>constant</i> is a hardcoded constant value. 
+
+</p><blockquote>
+<p align="JUSTIFY"><b>Example 9.</b> The <i>slti</i> instruction is
+useful in loops.  For example, if g is a loop index, and we
+want to implement the following high-level code fragment:
+
+</p><pre>        if (g &gt;= 1) goto Loop; </pre>
+
+<p align="JUSTIFY">then the following MIPS instructions would be employed:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-slti-Ex1.gif"></p>
+
+<p align="JUSTIFY">Here, the first instruction says that register
+<code>$t0</code> = 1 if g &lt; 1, where the constant 1 is hardcoded
+into the instruction (hence, the use of <i>immediate</i> addressing).
+The second instruction transfers control to the label
+<code>Loop</code> if g is greater than or equal to 1.
+</p></blockquote>
+
+<p align="JUSTIFY">For unsigned number representations, which we shall
+discuss later in this course, the <code>sltu</code> and
+<code>sltiu</code> instructions are employed.  These function
+similarly to <code>slt</code> and <code>slti</code>.
+
+</p><p align="JUSTIFY">Relational operators other than <i>equals</i> and
+<i>not-equals</i> are unsupported in MIPS assembler.  Instead, the
+following constructs can be used to create assembly language
+representations of the remaining relations:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-slt-Ex2.gif"></p>
+
+<p align="JUSTIFY">We call these <i>pseudoinstructions</i> because while
+they are not directly supported by the MIPS assembler, they can be
+constructed from other MIPS assembly language instructions.
+
+</p><h4>2.3.6. Case and Switch Statements</h4>
+
+<p align="JUSTIFY">The high-level language statements called <i>case</i>
+or <i>switch</i> select a statement or group of statements to be
+executed based on the value of a key variable.  In Figure 2.12, the
+high-level code is expressed in terms of the C-language <i>switch</i>
+statement (upper left-hand box).  The arrow pointing down to the
+<i>if</i> statement (lower left-hand box) shows how the <i>switch</i>
+statement is translated into a series of <i>if</i> statements, which
+we already know how to implement in MIPS assembly language (per
+Section 2.3.3).  The assembly code is shown in the right-hand box.
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/Figure2.12-switch.gif"><br><br> <b>Figure
+2.12.</b> Implementation of a <i>switch</i> statement in terms of
+MIPS assembly language, with register assignments shown at the top of the 
+right-hand box - adapted from [Maf01].
+</p>
+
+<h4>2.3.7. Jump Tables</h4>
+
+<p align="JUSTIFY">It is possible to store in memory the addresses of
+machine language instructions to which control is to be transferred
+(for example, by a conditional branch).  Thus, let a <i>jump table</i>
+be comprised of registers that contain the memory addresses of machine
+language instructions that are referenced by labels L0 through L3.  We
+use the MIPS instruction called <code>jr</code> (for <i>jump
+register</i> to implement the jump to the address contained in a given
+register that is referenced by the <code>jr</code> instruction.
+Figure 2.13 illustrates this process.
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/Figure2.13-jumptbl.gif"><br><br> <b>Figure
+2.13.</b> Implementation of a <i>jump table</i> in memory using
+MIPS assembly language, with register assignments shown at the top of the 
+right-hand box - adapted from [Maf01].
+</p>
+
+<h4>2.3.8. Procedure Support</h4>
+
+<p align="JUSTIFY">In order to run programs that are comprised of
+multiple procedures, the MIPS ISA must support memory mapping and
+C or C-like function definitions and encapsulation, as well as
+stack-based execution and some type of compilation.  In this section,
+we discuss these concepts and how they are implemented in MIPS.
+ 
+</p><p align="JUSTIFY"><b>2.3.8.1. Memory Map.</b> In order to keep the
+storage of data and instructions for a given program orderly, MIPS
+uses the memory map illustrated schematically in Figure 2.14.  Here,
+there is a 4MB reserved space starting at hexadeciaml address
+0x00000000 to the text segment, which starts at 0x00400000.  The
+reserved space is used for system bookkeeping and other functions,
+while the text segment stores a program's instructions.
+ 
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/Figure2.14-MIPSmemory.gif"><br><br>
+<b>Figure 2.14.</b> Layout of memory in MIPS architecture, where
+<code>$gp</code> denotes <i>global pointer</i> - adapted from [Maf01].
+You can read about this further in Section A.5 of your textbook
+[Pat98].
+</p>
+
+<p align="JUSTIFY">The data segment begins at 0x10000000 and is divided
+into two parts.  The static data segment contains objects whose size
+is known to the compiler and whose lifetime extends throughout the
+program's execution.  By <i>lifetime</i>, we mean the interval during
+which a program can access data.  In contrast, dynamic data is
+allocated by the program as it executes.  For example, the C
+<code>malloc</code> function allocates memory dynamically by finding
+and returning a new block of memory using operating system utilities.
+
+</p><p align="JUSTIFY">The program stack segment resides at the top of the
+address space, starting at 0x7FFFFFFF.  The stack is a dynamic
+structure that stores values generated by different operations
+throughout the course of a program's execution.  Since the contents of
+the stack are not known at compile time, the stack size varies, hence
+the large memory space alloted to it.
+ 
+</p><p align="JUSTIFY">This three-part division of memory (text, data, and
+stack segments) has the advantage that the dynamically expandable
+segments (dynamic data and stack) are as far apart as possible, but
+are positioned to use the entire program's address space, if necessary.
+ 
+</p><p align="JUSTIFY"><b>2.3.8.2. Data Segment.</b> Two instructions
+(<code>lui</code> and <code>lw</code>) are needed to access the data
+segment, as shown in Figure 2.15.  To avoid repeating the <code>lui</code> insturction at every load and store, MIPS typically dedicates a register called
+<code>$gp</code> (global pointer) to the static data segment.  This register
+contains address 1000080000<sub>16</sub>, so load and store instructions
+can use their signed 16-bit offset fields to access the first 64KB of
+the static data segment.  
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/Figure2.15-DataSegment.gif"><br><br> <b>Figure
+2.15.</b> Accessing an entry in the data segment, adapted from [Maf01].
+</p>
+
+<p align="JUSTIFY">Figure 2.15 illustrates the rewriting of the instruction
+pair
+
+</p><pre>        lui $s0, 0x1001
+        lw  $v0, 0x8020($s0)
+</pre>
+
+<p align="JUSTIFY">using the global pointer, as the single instruction
+
+</p><pre>        lw  $v0, 0x8020($gp)
+</pre>
+
+<p align="JUSTIFY">Additionally, $gp renders more efficient the
+addressing of locations 10000000<sub>16</sub> through
+10010000<sub>16</sub> than other heap locations.  MIPS compiler
+usually stores global scalar variables in this area because these
+variables have fixed locations and fit better than other global data
+such as arrays.  (The scalars are smaller and can thus be packed
+more efficiently into limited memory space.)
+ 
+</p><p align="JUSTIFY"><b>2.3.8.3. Support for C Functions and
+Procedures.</b> The C language (and many other high level languages)
+are modularly structured, being comprised of numerous functions,
+procedures, or subroutines.  These functions are called from the
+main program, and can be called by each other, leading to a transfer
+of control that is diagrammed with arrows in Figure 2.16.
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/Figure2.16-Cprocs.gif"><br><br> <b>Figure
+2.16.</b> Calling sequence in C, adapted from [Maf01].
+</p>
+
+<p align="JUSTIFY">A key implementational question pertains to the
+bookkeeping information that the compiler must keep track of.  In the
+C calling sequence as implemented in MIPS, the following information
+is accounted for:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-callinfo.gif"></p>
+ 
+<p align="JUSTIFY">The procedure address includes the labels that
+reference the procedure, and their addresses.  The return address
+points to the location in memory that control is transferred to
+<i>after</i> the called procedure completes.  The argument registers
+contain the values referenced by the formal arguments of the called
+procedure.  The return values are what is returned by the called
+procedure through the <code>return</code> statement when the procedure
+completes.  If the called procedure is declared a <code>void</code> procedure,
+then $v0 and $v1 are empty.  As discussed previously $s0 through
+$s7 are used to store values referenced by variables that are local
+to (within the scope of) the called procedure.
+
+</p><p align="JUSTIFY">Because procedures are dynamic, <i>procedure call
+frames</i> (PCFs) are used to store this bookkeeping information.
+Typically a PCF contains arguments, save registers, and local
+variables.  If a machine has a small number of registers, then the
+state <i>S</i> of the registers must be saved prior to calling a
+subordinate procedure.  Otherwise, the calling procedure or program's
+state will be obliterated.  After the called procedure completes, then
+the machine is restored to <i>S</i>, augmented by the values returned
+by the called procedure.  The register conventions shown in Table 2.1
+apply to called procedures (termed <i>callees</i>) as well as to the
+calling procedure or program.
+
+</p><p align="JUSTIFY"><b>2.3.8.4. The Stack.</b> The stack is where the
+stack frames, also termed <i>Procedure Call Frames</i> or PCFs, are
+temporarily stored in memory.  The stack begins at address 0xFFFFFFFF
+and can be expanded upward.  However, 0xFFFFFFFF up to 0x7FFFFFFF
+is reserved space.  Thus, the stack frame corresponding to the main
+program begins at 0x7FFFFFFF, as shown in Figure 2.17a.
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/Figure2.17a-Stack.gif"><br>(a)<br> <img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/Figure2.17b-StackFrame.gif"><br>(b)<br><br> <b>Figure 2.17.</b>
+(a) MIPS stack and (b) stack frames for called procedure, adapted from
+[Maf01].
+</p>
+
+<p align="JUSTIFY">In Figure 2.17b is shown the stack with the main
+program's stack frame and the called procedure (callee) frame.  In
+this case, the callee frame ranges from address <code>$fp</code> to
+<code>$sp</code> (the stack pointer, which points to the furthest
+extent of the stack).  The argument registers ($a...) and the return
+value registers ($v...) are stored in the callee's stack frame.  Extra
+arguments that cannot be stored in <code>$a0</code> through
+<code>$a3</code> are stored in the calling procedure's stack frame.
+Additionally, memory locations that store the calling program's
+(caller) state are referenced by their addresses stored in the
+caller's stack frame (denoted by VAT in Figure 2.17b).
+
+</p><p align="JUSTIFY">The following process occurs when a procedure is called:
+ 
+</p><p></p><ul><b>Step A.</b> Immediately before the caller invokes the callee
+
+<p>  </p><ol><li>Pass the first four arguments of the callee to registers 
+             <code>$a0</code> through <code>$a3</code>
+         </li><li>Push the extra arguments (if there are more than four args) on
+             the stack
+         </li><li>Save to memory the caller-saved registers (<code>$a0</code>-<code>$a3</code>; <code>$to</code>-<code>$t9</code>)
+         </li><li>Execute <code>jal</code> (jump and link) to jump to the callee 
+             and save the return address in <code>$ra
+</code>     </li></ol>
+
+<p><b>Step B.</b> Just before the callee starts executing
+
+</p><p>  </p><ol><li>Allocate memory for the stack frame of size <i>fsize</i> as
+              <p align="CENTER"><code>$sp</code> = <code>$sp</code> - fsize</p>
+         </li><li>Save to memory the callee-saved registers (<code>$s0</code>-<code>$s7</code>; <code>$fp</code>, <code>$ra</code>)
+         </li><li>Increment the frame pointer to reflect the callee's requirements
+              <p align="CENTER"><code>$fp</code> = <code>$fp</code> + (fsize - 4)</p>
+     </li></ol>
+
+<p><b>Step C.</b> Immediately before the callee returns to the caller
+
+</p><p>  </p><ol><li>Place the returned value(s) in register(s) <code>$v0</code> (<code>$v1</code>)
+         </li><li>Restore all callee-saved registers
+         </li><li>Pop the stack frame for the callee, as
+              <p align="CENTER"><code>$sp</code> = <code>$sp</code> + fsize</p>
+         </li><li>Restore <code>$fp</code> to its former value (stored in Step B.2, above)
+         </li><li>Return by jumping to the address in <code>$ra
+</code>     </li></ol>
+</ul>
+
+
+<p align="JUSTIFY">We can better understand this sequence of operations if
+we analyze a simple example.
+
+</p><blockquote>
+<p align="JUSTIFY"><b>Example 10.</b> Consider the following example
+of a program that calls an addition function <code>sum(x,y)</code>:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-ProcSupp1.gif"></p>
+
+<p align="JUSTIFY">Here, the first two <code>add</code> instructions put
+the arguments of <code>sum</code> into the argument registers
+<code>$a0</code> and <code>$a1</code>.  Then, the return address is
+set at 1016, the address of the instruction after the subsequent jump.
+The jump instruction jumps to the <i>label</i> <code>sum</code>, which
+is references memory address 2000.  Here, the local variables x and y,
+whose values are stored in the argument registers <code>$a0</code> and
+<code>$a1</code>, are added and the result put in the return register
+<code>$v0</code>.  Then, the instruction <code>jr</code> (jump
+register) is executed to pass control to the return address
+(<code>$ra</code> = 1016, which was set in the third instruction).
+</p></blockquote>
+ 
+<p align="JUSTIFY"><b>Alternate Approach.</b> The preceding process can
+be made more efficient by eliminating one instruction in favor of the
+<code>jal</code> (jump and link) instruction.  This should actually be
+called the <i>link and jump</i> instruction, since it automatically
+stores the address of the next instruction in $ra, then jumps to the
+label specified in the instruction syntax:
+
+</p><p align="CENTER"><code>jal <b>label</b></code></p>
+
+<p align="JUSTIFY">Jump and link is a J-format instruction, which would
+be used in the preceding example to implement the following code:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-ProcSupp2.gif"></p>
+
+<blockquote>
+<p align="JUSTIFY"><font color="BLUE"><b>Self-Exercise.</b> In the 
+preceding example, all other things being equal, what is the
+efficiency realized by substituting the <code>jal</code> instruction
+for the <code>j</code> instruction?  Justify your answer quantitatively.
+</font>
+</p></blockquote>
+
+<p align="JUSTIFY">The <code>jal</code> instruction is also useful for
+nested procedures, where one procedure is called from inside another.
+The following code fragment is illustrative:
+
+</p><pre><b>       int sumSquare(int x, int y) {
+         return mult(x,x) + y;
+      }</b>
+</pre>
+
+<p align="JUSTIFY">This code fragment is rendered in MIPS assembler as follows:
+ 
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-ProcNest.gif"></p>
+
+<p align="JUSTIFY">Here, instead of using addition instructions to store
+values in registers, we use <i>load</i> and <i>store</i> instructions
+to perform very fast memory I/O to save and restore variables.  The
+boxed instructions show how arguments are the return address are saved
+in a very efficient manner.  The addition instructions require the ALU
+to be activated - load and store do not require the ALU, which is much
+slower than register I/O.  Since we perform many I/O operations for
+procedure calls, mainly in saving and restoring the procedure state
+via the stack frame, we want to <i>make the common case fast</i> and
+use the most efficient means of handling arguments and jump addresses
+that we possibly can.
+ 
+</p><p align="JUSTIFY"><b>2.3.8.5. Stack and Recursion.</b> The final
+perversion of the previous development sequence (procedures =&gt;
+multiple calls =&gt; nested procedures) occurs when we have
+<i>recursion</i>, where a procedure can call itself many times (in
+the worst case, infinitely).  This causes a large number of procedure
+call frames to be stored on the stack. It is thus possible to run out
+of stack space.  We call that undesireable condition <i>stack
+overflow</i>.  There are several ways to avoid stack overflow,
+including virtual memory (paging stack contents to disk), which we
+will discuss later in this course.  In the meantime, consider the
+following example.
+ 
+</p><blockquote>
+<p align="JUSTIFY"><b>Example 11.</b> Recall that the factorial of a
+number N can be computed as
+
+</p><p align="CENTER">N! = N · (N-1) · (N-2) · ... · 2 · 1 . </p>
+
+<p align="JUSTIFY">Thus, the factorial is recursive.  As a result, a
+routine <code>fact(x)</code> that computes the factorial of its
+integer argument x could be written as:
+
+</p><p align="CENTER"><code>fact(x) = x</code> · <code>fact(x-1)</code>
+· <code>fact(x-2)</code> · ... · 1 . </p>
+
+<p align="JUSTIFY">This implies the following C code for the factorial
+function:
+
+</p><pre><b>        main(){
+           int f;
+           f = fact(10);
+           printf("Fact(10 = %d\n",f);
+        }
+
+        int fact(int n){
+           if (n &lt; 1)
+              return(1);
+           else
+              return(n * fact(n-1));
+        }</b>
+</pre>
+
+<p align="JUSTIFY">As a result, the stack will be loaded with stack
+frame for the <code>main()</code> routine, followed by the stack
+frames for <code>fact(10)</code>, <code>fact(9)</code>, ...,
+<code>fact(1)</code>, in that order, as shown in Figure 2.18a.  This
+is a representation of the stack when the recursion is "wound up",
+i.e., all the calls to <code>fact(n)</code> have been made.  Then, the
+stack is "wound down" by evaluating each call to <code>fact(n)</code>,
+using the stack frames pushed onto the stack when the stack was wound
+up.  Thus, the calls to <code>fact</code> will be evaluated in the order
+<code>fact(1)</code>, <code>fact(2)</code>, ..., <code>fact(10)</code>,
+followed by the evaluation of the remainder of the <code>main</code>
+procedure.  This is done by (1) popping the stack frame for a given
+call off the stack, (2) evaluating the call, then (3) going back to the
+stack for the next stack frame.  When the stack is empty, the program
+has been evaluated.  The MIPS assembly code for this process is shown
+in Figure 2.18b.
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/Figure2.18a-Recurs1.gif"> <br>(a)<br><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/Figure2.18b-Recurs2.gif"><br>(b)<br><br> <b>Figure 2.18.</b>
+(a) MIPS stack for the factorial program <code>main</code> shown above,  
+and (b) corresponding assembly code, adapted from
+[Maf01].
+</p>
+
+<p align="JUSTIFY"><font color="BLUE"><b>Self-Exercise.</b> The program
+shown in Figure 2.18b is explained in detail in Appendix A of the text
+[Pat98], pages A-26 through A-29.  Please familiarize yourself with
+this example, as well as the example that computes the Takeuchi
+benchmark, which is discussed in detail on pages A-29 through A-32.</font>
+</p></blockquote>
+
+<p align="JUSTIFY">In summary, MIPS has several conventions that make
+procedure calls feasible.  First, the callee can use VAT registers
+freely.  Second, the caller can use the S-registers without having
+his values overwritten.  Third, you can use the stack to save your
+data or instruction addresses, provided that you leave it the way
+you found it (i.e., pop off the things you pushed onto the stack
+after you are done using the stack).  Fourth, the register conventions
+should be observed, to keep memory access consistent.  Fifth, MIPS
+provides instruction support in terms of the <code>jal</code> and
+<code>jr</code> instructions, where <code>jal</code> operates on a 
+label, and <code>jr</code> operates on a register (e.g., $ra).
+
+<a name="Sec2.4"></a>
+</p><h3>2.4. Number Representations, Data Types and Addressing  </h3>
+
+<p><a href="https://www.cise.ufl.edu/~mssz/CompOrg/PatHen-Readings.html#ExSec2.4"><b>Reading Assignments and Exercises</b></a> 
+
+</p><p align="JUSTIFY">In this section, we discuss theoretical and practical
+foundations for representing numbers in digital computers, including
+MIPS.  We then show how different types of data are represented and
+referenced (via addresses) in MIPS.  
+ 
+</p><h4>2.4.1. Number Representations</h4>
+
+<p align="JUSTIFY">In Section 1, we showed how different number systems
+(e.g., binary, decimal, hexadecimal) could be used interchangeably to
+represent a wide range of integers.  Computers used <i>fixed precision
+number representation</i>.  This means that if a number can be
+represented using N binary digits, then the range of possible values
+for that representation is -2<sup>N-1</sup> to 2<sup>N-1</sup> - 1.
+ 
+</p><p align="JUSTIFY">Because of the precision problem, the laws of 
+continuous algebra do not always hold in computer arithmetic.
+We will shortly see why this is so.  First, let us consider issues
+associated with computer representations.  Note that bits can be 
+used to represent anything - text, characters, images, colors, etc.
+However, N bits can only be used to represent a maximum of 2<sup>N</sup>
+distinct (unique) objects.  
+ 
+</p><p align="JUSTIFY"><b>2.4.1.1. Signed Magnitude Encoding.</b> Number
+representations in binary arithmetic tend to be problematic if you
+want to represent negative numbers and zero.  For example, one can
+used <i>signed magnitude encoding</i>, which represents a number
+(e.g., -37) as a binary number (e.g., 1x0100101).  Here the minus sign
+is represented by a leading 1.  If a positive number is thus
+represented, the leading digit is zero.  (Note that the leading digit
+is called the <i>most significant bit</i> or MSB.)  The problem with
+signed magnitude representations is that there are two representations
+for zero, namely -0 (1x0000) and +0 (0x0000). This makes arithmetic
+circuits compilcated.  Hence, signed magnitude encoding was abandoned
+early in the development of computer arithmetic.
+ 
+</p><p align="JUSTIFY"><b>2.4.1.2. Ones Complement Encoding.</b> Numbers can
+be encoded using <i>ones complement</i>, which makes arithmetic
+circuits simpler.  For example, 7<sub>10</sub> = 00111<sub>2</sub>,
+but -7<sub>10</sub> = 11000<sub>2</sub>.  Thus, positive numbers have
+leading zeroes, while negative numbers have leading ones.  Unfortunately,
+there are still two zero representations (0x0000 and 0x11111).
+
+</p><p align="JUSTIFY"><b>2.4.1.3. Twos Complement Encoding.</b> An
+improvement over ones complement is realized by making each positive binary
+number <i>x</i> start with zero and -<i>x</i> = <i>not</i>(<i>x</i>) + 1.
+For example,
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/TwosComplmt-Ex1.gif"></p>
+
+<p align="JUSTIFY">Thus, positive (negative) numbers can have infinitely
+many leading zeroes (ones).  Twos complement numbers have some
+interesting properties, for example, the negation property.  Let
+<i>x</i>' denote the negation of binary number <i>x</i> (e.g., if
+<i>x</i> = 1010, then <i>x</i>' = 0101).  The following assertion holds:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/TwosComplmt-Ex2.gif"></p>
+
+<blockquote>
+<p align="JUSTIFY"><b>Example 12.</b> Consider the following conversion
+from the decimal number 4 to -4, then back to 4:
+ 
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/TwosComplmt-Ex3.gif"></p>
+
+<p align="JUSTIFY">The steps are shown in blue, with the "trick" of
+adding one to the inverted result shown in red (on the left-hand
+side), with its result shown in red (on the right).
+</p></blockquote>
+ 
+<p align="JUSTIFY">Complementary representations present some interesting
+implementational issues.  If one does not differentiate between signed and
+unsigned numbers, comparisons can be problematic.  For example, 
+if <i>x</i> = 1110101 and <i>y</i> = 0110101, then <i>x</i> &gt; <i>y</i>
+if the representation is unsigned, but <i>x</i> &lt; <i>y</i> if the
+representation is signed.  Thus, one must consistently use signed or
+unsigned number representation in a computer architecture.
+ 
+</p><p align="JUSTIFY">Another issue is sign extension when converting from
+a reduced-precision representation to a higher precision
+representation.  For example, supposed we have an eight-bit twos
+complement number <i>x</i> = (1111 1100), that we wish to convert to a 16-bit
+representation.  Because positive (negative) twos complement numbers
+have an infinite number of leading zeroes (ones), we can simply view
+any N-digit twos complement representation as a leftward truncation of
+the actual (infinite-length) twos complement representation.  Thus,
+expressing <i>x</i> in 16-bit format is merely a matter of filling
+the more significant bits with the leading bit of the low-precision form,
+e.g., <i>x</i> becomes (1111 1111 1111 1100)).  This also holds for 
+extension of leading zeroes, which is another reason that twos complement
+numbers are useful in computing.
+
+</p><h4>2.4.2. Datatypes</h4>
+
+<p align="JUSTIFY">As we stated in the introduction (Section 1), one of
+the big ideas of computer science is that data is <i>pliable</i> - it
+can be anything that the program requires it to be.  In
+general-purpose computing or with high-level languages, data can
+include integers, floating point numbers, characters, strings, dates,
+currency information, text, objects (e.g., abstract datatypes), blobs
+in graphics, double precision numbers, as well as signed or unsigned
+number representations (as discussed in the previous section).
+
+</p><p align="JUSTIFY">MIPS provides support for numeric datatypes such as
+integers (signed and unsigned representations) and floating point
+numbers, as well as strings, memory addresses (pointers), and
+instructions.  MIPS also supports 16-bit constants (immediates),
+halfwords (16 bits), and bytes (8 bit).
+
+</p><p align="JUSTIFY">As shown in Figure 2.19, the <code>lb</code> (load
+byte) instruction expressed as <code>lb $s1, 4($s0)</code> transfers
+data from the address contained in register <code>$s0</code>, with an
+offset of 4 bytes, to the register <code>$s1</code>.  This can also be
+accomplished with the <code>lbu</code> (load byte unsigned)
+instruction, as shown in Figure 2.19.
+ 
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/Figure2.19a-Address1.gif"> <br><br><b>Figure
+2.19.</b> Example of the <i>load byte</i> instructions, adapted from
+[Maf01].
+</p>
+ 
+<p align="JUSTIFY">Another application for which MIPS can be used is
+string manipulation, which helps illustrate the use of <code>lb</code>
+and <code>sb</code> instructions (byte I/O).  The following example
+is illustrative.
+
+</p><blockquote>
+<p align="JUSTIFY"><b>Example 12.</b> Suppose we want to copy string
+<i>x</i> to string <i>y</i>. We can use the C language routine
+
+</p><pre>        void strcpy(char x[ ], char y[ ]) {
+           int i ;                        
+           i = 0 ;                        # initialize loop counter
+           while ( (x[i] = y[i] ) != 0)   # check for end-of-string
+             i = i + 1 ;                  # increment loop counter
+        }
+</pre>
+ 
+<p align="JUSTIFY">Here, <code>strcmp</code> exits when <i>x</i>[i]
+and <i>y</i>[i] are unequal, i.e., when a difference is found in
+the characters of <i>xy</i> at a given position i.
+This is implemented in MIPS, as follows:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-Address-Ex1.gif"></p>
+
+<p align="JUSTIFY">Here, the routine <code>strcpy</code> has three
+parts: (1) the <i>prologue</i>, which comprises the first three
+statements that set up the stack and initialize the <code>$s0</code>
+register; (2) the <i>body</i> that contains the MIPS representation of
+the <i>while</i> loop; and (3) the <i>epilogue</i> that resets the
+address space (stack pointer) and jumps to the return address (which
+we assume was set prior to jumping to <code> strcpy</code> label).
+ 
+</p><p align="JUSTIFY">Assume that base addresses for arrays <i>x</i> and
+<i>y</i> are found in argument registers <code>$a0</code> and
+<code>$a1</code>, while i is in <code>$s0</code>.  In the prologue,
+the stack pointer is adjusted and <code>$s0</code> is saved on the
+stack. The register <code>$s0</code> is then set to zero, and the loop
+begins at label L1.  The address of <i>y</i>[i] is formed by adding
+offset i (in <code>$s0</code>) to <i>y</i>.  Note that the offset need not be
+multiplied by 4, as in previous examples, because the characters in
+<i>x</i>. and <i>y</i> are an array of bytes, not 32-bit words.  To
+get the character in <i>y</i>[i] from memory to register, we use the
+<code>lb</code> instruction, which puts the character into <code>$t2</code>.
+
+</p><p align="JUSTIFY">The next step is to transfer the character from
+<code>$t2 </code> to memory.  To do this, we first put the address of
+<i>x</i>[i] in <code>$t3</code>, then use <code>sb</code> (store byte)
+instruction to transfer the character in <code>$t2</code> to that
+address.  If the character is a zero (end-of-string character in C),
+then we exit the loop and go to label L2.  Otherwise, the loop index
+is incremented with the <code>addi</code> instruction, and we return
+to L1.  In the epilogue, the stack pointer and <code>$s0</code> are
+reset, and control is transferred to the return address.
+</p></blockquote>
+
+<p align="JUSTIFY">In actual C-language string manipulations, pointers
+are used, as discussed in Section 2.6.  This avoids the overhead
+associated with loop index manipulation.
+ 
+</p><h4>2.4.3. Addressing</h4> 
+
+<p align="JUSTIFY">MIPS has several types of addressing, including <i>
+immediate mode</i> for constant-valued operands.  As stated in Section
+2.2.3.1, the <i>common case</i> is that small constants are used
+frequently.  Thus, in order to make the execution of operations with
+small constants fast, we (1) put the constants in memory then (2) load
+them into registers.  A second type of addressing puts constants 
+directly into the assembly language instruction (e.g., hardcoded
+constants).  We address these constants in immediate mode, for example,
+the following <i>add-immediate</i> instruction:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-Address-Ex2.gif"></p>
+
+<p align="JUSTIFY">Immediate mode can be useful for purposes other
+than arithmetic.  For example, suppose we want to load a 32-bit
+word into a register, but MIPS supports only 16-bit constants.
+The trick here is to first load the higher-order bits using the
+<i>load upper immediate</i> instruction
+
+</p><pre>        lui $t0, 10101010101010101010</pre>
+
+<p align="JUSTIFY">which loads the constant (second operand) into the
+upper half (more significant 16 bits) of $t0.  We then load the
+remainder of the lower order bits using the <i>or-immediate</i>
+instruction:
+ 
+</p><pre>        ori $t0, $t0, 10101010101010101010</pre>
+ 
+<p align="JUSTIFY">which works as shown below:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-Address-Ex3.gif"></p>
+ 
+<p align="JUSTIFY">MIPS has several additional addressing modes,
+including <i>data</i> and <i>instruction</i> modes.  Data addressing
+features register addressing (the fastest and shortest mode), base
+addressing (for operands in memory, e.g., <code>lw $t0 20($t1)</code>,
+and immediate addressing that hardcodes a constant directly into an
+instruction.  We have already studied each of these modes.
+
+</p><p align="JUSTIFY">Instruction addressing modes include PC-relative
+addressing (for branches) and pseudodirect addressing (for jumps).
+The term <i>PC</i> means <i>program counter</i>, which is a 
+special-purpose address register that points to a given instruction
+in the instruction sequencer.  
+
+</p><p align="JUSTIFY">In PC-relative addressing, the address is the PC + C
+· 4, where C denotes a constant hardcoded into a branch
+instruction.  This allows the program address space to be (in
+principle) as large as 2<sup>32</sup> instructions.  If we simply used
+PC, only 2<sup>16</sup> instructions would be allowed (16-bit address
+space), which is far too small for modern programs.
+
+</p><p align="JUSTIFY">In pseudodirect addressing, the address is PC[31:28]
+(upper six bits of the PC address) concatenated with the 28-bit word
+represented by the 26 bits of address in the jump instruction.  This
+is useful for long jumps (not the common case), and can be inserted by
+the MIPS assembler, as follows.  In practice, the assembler performs
+this insertion of a large jump (to a <i>far target address</i>) by
+converting a <code>beq</code> branch to a <code>bne</code> branch, as
+shown below.
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-Address-Ex4.gif"></p>
+
+<p align="JUSTIFY">Here, the current PC is outside the memory segment in
+which local activity occurs (the shaded region in the preceding
+illustration).  The 26-bit field in the jump instruction is also a
+word address, i.e., it represents a 28-bit byte address.  To make up
+the remaining four bits, MIPS uses the upper four bits of the PC.  As
+a result, the loader and linker must be careful to avoid placing jumps
+across an address boundary of a 256MB segment.  Otherwise, the jump
+must be replaced by a jump register instruction, where the full 32-bit
+address must be loaded into the register using an immediate-mode
+instruction like that shown in the <code>ori</code> example, above.
+
+<a name="Sec2.5"></a>
+</p><h3>2.5. MIPS Programs</h3>
+
+<p><a href="https://www.cise.ufl.edu/~mssz/CompOrg/PatHen-Readings.html#ExSec2.5"><b>Reading Assignments and Exercises</b></a> 
+
+</p><p align="JUSTIFY">MIPS supports translation of high-level languages (HLL)
+such as C to assembly language, then to object code and executable
+code.  In this section, we examine this process, shown schematically
+in Figure 2.20.
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/Figure2.20-MIPScompile.gif"> <br><b>Figure
+2.20.</b> Example of MIPS compilation sequence, adapted from
+[Maf01].
+</p>
+
+<p align="JUSTIFY">Here, the C source file <code>foo.c</code> is
+compiled using the C compiler (Unix command <code><b>cc</b></code>),
+to yield an assembly language program <code>foo.s</code>.  This
+program is input to the MIPS assembler (Unix command
+<code><b>as</b></code>), producing an object (machine language) module
+<code>foo.o</code>.  The linker (Unix command <code><b>ld</b></code>)
+links a library <code>lib.o</code> with the object module to produce
+the executable file <code>a.out</code>.  When the executable is
+invoked (via the Unix command <code><b>a.out</b></code>), the loader
+puts the executable code into memory, and the program is run.
+
+</p><p align="JUSTIFY">The assembler, which is of concern to this course, 
+performs the following tasks:
+
+</p><ol><p></p><li><i>Reads and executes directives</i> for special treatment of
+           input (per Section 2.5.1)
+
+<p> </p></li><li><i>Replaces pseudoinstructions</i> (shown below in the
+           left-hand column) with blocks of instructions supported by
+           MIPS (shown below to the right of the pseudoinstructions),
+           for example:
+
+<p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPSpseudoinstruction-Ex1.gif"> </p>
+
+<p>    </p></li><li><i>Produces machine language</i> file, as discussed in
+           Section 2.5.2; and
+
+<p>    </p></li><li><i>Creates an object module</i> with filename ending in ".o",
+           whose structure is overviewed in Section 2.5.3.
+</li></ol>
+
+<p align="JUSTIFY">We next consider assembler directives, which are
+somewhat like preprocessor commands in C.
+
+</p><h4>2.5.1. Assembler Directives</h4>
+
+<p align="JUSTIFY">The MIPS assembler supports the following
+<i>directives</i>, which do not produce machine language code, but merely
+control the functions of the assembler:
+
+</p><ul><p></p><li><b><code>.align n</code></b> - Align the next datum on a
+       2<sup>n</sup> byte boundary
+
+<p>    </p></li><li><b><code>.text</code></b> - Put subsequent items in user text
+       segment of memory
+
+<p>    </p></li><li><b><code>.data</code></b> - Put subsequent items in user data
+       segment of memory
+
+<p>    </p></li><li><b><code>.global sym</code></b> - Set the access permissions on
+       the symbol table so it can be referenced from other files
+
+<p>    </p></li><li><b><code>.asciiz str</code></b> - Store the string
+       <code><b>str</b></code> in memory
+
+<p>    </p></li><li><b><code>.word w1..wn</code></b> - Store the subsequent <i>n</i> 
+       32-bit quantites in successive memory words
+
+<p>    </p></li><li><b><code>.byte b1..bn</code></b> - Store the subsequent <i>n</i> 
+       8-bit quantites (bytes) in successive memory words
+
+<p>    </p></li><li><b><code>.float f1..fn</code></b> - Store the subsequent <i>n</i> 
+       floating-point values in successive memory words
+</li></ul>
+
+<p align="JUSTIFY">Another assembler feature is <i>absolute addressing</i>,
+which is described as follows.  Absolute addressing supports
+relocation editing by implementing load/store operations to variables
+in static memory, conditional branches, jump instructions, and direct
+references to data, as shown below:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPSabsaddr-Ex1.gif"> </p>
+
+<p align="JUSTIFY">In some cases, these references cannot be determined at
+assemble time (when the assembler translates MIPS code to machine
+language), so temporary data structures are created, as described in
+the following section.
+
+</p><h4>2.5.2. Production of Machine Language</h4>
+
+<p align="JUSTIFY">In the simplest case, machine language instructions
+can be directly produced from MIPS assembly code.  Here, the basic
+information needed to translate the assembly instruction to one or
+more machine language instructions is already within the instruction.  
+Arithmetic, logical, and shift instructions are in this category.
+
+</p><p align="JUSTIFY">With conditional branches, some delay is encountered,
+since pseudoinstructions (not directly supported by the MIPS
+assembler) have to be translated first into their assembly language
+equivalents (instructions directly supported by MIPS).  After all the
+pseudo instructions have been translated, it is possible for the
+assembler to make a <i>second pass</i>, where the machine language
+instructions are counted up, and the branch target addresses (where
+the branch instructions transfer control to) can be calculated.  The
+PC-relative addressing mode is useful for this step of machine language
+production.
+
+</p><p align="JUSTIFY">Direct (absolute) addressing presents a problem, due
+to jumps (<code>j</code> and <code>jal</code> instructions), as well
+as direct (absolute) references to data.  These cannot be determined
+at this step of the assembly process, so we need to create two tables:
+the <i>symbol table</i> and <i>relocation table</i>.
+
+</p><p align="JUSTIFY">The <i>symbol table</i> contains a list of object
+<i>s</i> in the assembly language program that may be used by other
+files.  This includes <i>labels</i>, for function calling, and
+<i>data</i> (e.g., anything in the <code>data directive</code> or
+variables that are to be accessedacrossed files.  On the first pass,
+the assembler records label-address pairs.  On the second pass,
+machine code is produced.  Thus, it is possible to jump to a subsequent
+label without declaring it first.
+
+</p><p align="JUSTIFY">In contrast, the <i>relocation table</i> is a list of
+objects for which the assembled program needs addresses.  This
+includes any label jumped to (<code>j</code> or <code>jal</code>
+instruction), whether internal or external (including library files).
+Also, the relocation table contains any piece of data specified within
+the program.
+
+</p><h4>2.5.3. Structure and Creation of Object Module</h4>
+
+<p align="JUSTIFY">The object module contains the following
+information:
+
+</p><ul><p></p><li><i>Object File Header</i> contains the size and position of 
+       the specific partitions of the object file
+
+<p>    </p></li><li><i>Text Segment</i> is the place where the machine code resides
+
+<p>    </p></li><li><i>Data Segment</i> contains the binary representation of data
+       in the source file
+
+<p>    </p></li><li><i>Relocation Information</i> identifies lines of code that
+       need to be processed further (e.g., direct addresses)
+
+<p>    </p></li><li><i>Symbol Table</i> contains the list of the current program's
+       labels and data that can be referenced
+
+<p>    </p></li><li><i>Debugging Information</i> specifies link points and entry
+       points to various routines, libraries, etc.
+</li></ul>
+
+<h4>2.5.4. Linker</h4>
+
+<p align="JUSTIFY">The linker combines object (.o) files into an executable
+file.  This enables separate (independent) compilation of files.
+However, only the modified files are typically recompiled.  For
+example, Windows NT source code has over 30 million lines of code, so
+we want to perform <i>incremental compilation</i> on this large
+corpus of code, rather than attempting to compile it all at once.
+
+</p><p align="JUSTIFY">The linker also edits the links in the
+<code>jal</code> (jump-and-link) instructions, substituting addresses
+where appropriate.  This is why the linker used to be called the
+<i>link editor</i>.
+
+</p><p align="JUSTIFY">The linker performs the following steps:
+
+</p><ul><p></p><li><b>Step 1.</b> Assembles the text segments from each .o file to
+       get a composite of all the code in the program
+
+<p>    </p></li><li><b>Step 2.</b> Concatenate the data segments from each .o file
+       and append to the end of the text segment
+
+<p>    </p></li><li><b>Step 3.</b> Resolve the references by going through the
+       relocation table and processing each entry, filling in all 
+       absolute addresses.  Notify the user of any unresolvable references.
+</li></ul>
+
+<p align="JUSTIFY">There are four types of references that need to be
+resolved, which are:
+
+</p><ul><p></p><li><i>PC-relative</i> references such as branch instruction
+       targets, which are never relocated
+      
+<p>    </p></li><li><i>Absolute addresses</i> such as jump targets, which are always
+       relocated 
+
+<p>    </p></li><li><i>External references</i> such as jump-and-link targets,
+       which are always relocated; and
+
+<p>    </p></li><li><i>Data references</i> (e.g., from <code>lui</code> and
+       <code>ori</code> instructions), which are always relocated
+</li></ul>
+<p align="JUSTIFY">The linker assumes the first word of the first text
+segment is at 0x00000000.  Since the linker knows the length and
+ordering of each text and data segment, the linker can calculate the
+address of each internal or external jump target as well as the address
+of each piece of data being referenced.
+
+</p><h4>2.5.5. Loader</h4>
+
+<p align="JUSTIFY">The linker produces an executable file that is stored
+on disk.  The loader puts the executable code in memory and starts it
+running.  As a result, the loader is often thought of as a part of the
+operating system.  The loader performs the following functions:
+
+</p><ol><p></p><li><i>Read header</i> to determine the size and the text and
+       data segments
+
+<p>    </p></li><li><i>Create new address space</i> for the program that is large
+       enough to hold the text and data segments, and also the stack
+
+<p>    </p></li><li><i>Copy instructions and data</i>  from executable file memory
+
+<p>    </p></li><li><i>Initialize the machine registers</i>, for example, <code>$sp</code> points
+       to the first free stack location
+
+<p>    </p></li><li><i>Jump to the initial routine</i>  that copies the program
+       arguments from the stack to the registers, then sets the PC
+
+<p>    </p></li><li><i>When the main routine returns</i>, the start-up routine
+       terminates the program execution with a system call.
+</li></ol>
+
+<p align="JUSTIFY">Thus, the loader can be thought of as the runtime
+module.
+
+</p><p align="JUSTIFY">In summary, the compiler converts a single HLL file
+into an assembly language file.  The assembler translates
+pseudoinstructions, converts what instructions it can directly to
+machine language, and creates a checklist for the linker called the
+relocation table.  This changes each source file into an object file.
+The linker combines several object files (including libraries), and
+resolves absolute addresses.  The loader loads the executable produced
+by the linker into memory and begins program execution.
+
+<a name="Sec2.6"></a>
+</p><h3>2.6. Pointers and Arrays</h3>
+
+<p><a href="https://www.cise.ufl.edu/~mssz/CompOrg/PatHen-Readings.html#ExSec2.6"><b>Reading Assignments and Exercises</b></a> 
+
+</p><p align="JUSTIFY">In this section, we discuss in greater detail the
+issues surrounding pointers (addresses) and contiguous regions of
+memory that store values in arrays (as discussed in Section
+2.6.1). Salient implementational issues include argument passing as
+well as the lifetime and scope of storage (Section 2.6.2).  Uses of
+pointers include pointer arithmetic (Section 2.6.3) and the use of
+pointers with arrays (Section 2.6.4).  
+
+</p><h4>2.6.1. Basic Pointer Concepts</h4>
+
+<p align="JUSTIFY"><b>Definition.</b> A <i>pointer</i> is a variable
+that contains the address of another variable.
+
+</p><p align="JUSTIFY">In practice, a pointer can be thought of as the
+HLL equivalent of a machine language memory address.  We use pointers
+to express a program's functionality more compactly and efficiently,
+and to perform memory operations that cannot be done another way.
+Unfortunately, pointer mis-use comprises the largest amount of bugs
+in a typical program, with the following two errors predominating:
+
+</p><ol><p></p><li><i>Dangling Reference</i> - when a pointer points to a
+       memory location that has been prematurely freed
+
+<p>    </p></li><li><i>Memory Leaks</i> - when a memory location has been
+       freed too late, or not freed at all, and a pointer still
+       should reference it.
+</li></ol>
+
+<p align="JUSTIFY">As a result of these defects, a program must be
+restarted frequently to avoid accumulation of dangling references or
+leaks.
+
+</p><p align="JUSTIFY">Let us consider several example of pointer use in the
+C language.
+
+</p><p align="JUSTIFY">Suppose a variable <i>v</i> has value 100, and is
+located in memory at address 0x10000000.  The unary operator (&amp;) gives
+the memory address of <i>v</i>, for example: <code>p = &amp;v;</code>
+while the (*) operator gives the value that pointer <i>p</i> points to,
+for example: <code>value = *p</code>.  We call the (*) operation 
+<i>dereferencing</i>, and it is important in assembler, as shown below:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-pointers-Ex1.gif"> </p>
+
+<p align="JUSTIFY">Thus, the (*) operator, used to the right (left) of
+the equals sign, can implement a load (store) operation.
+
+</p><blockquote>
+<p align="JUSTIFY"><b>Example 13.</b> Assume that the variable <i>c</i>
+is an integer, has value 100, and resides in memory at address
+0x10000000.  Further assume that the pointer <i>p</i> is stored in
+register <code>$a0</code>, and that the variable <i>x</i> is stored in
+register <code>$s0</code>.  The following code fragment is
+illustrative of dereferencing.  the numbered code is C language, with
+assembly instructions listed below:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-pointers-Ex2.gif"> </p>
+
+<p align="JUSTIFY">The first item puts the address of <i>c</i> in
+<i>p</i>.  The second item dereferences <i>p</i> to put the value
+stored at that address in <i>x</i>, which is a synonym for
+<code>$s0</code>.  Finally, the memory location whose address is in
+<i>p</i> receives the value 200.  Note that the <code>addi</code> (add
+immediate) operator is used to put the value 200 in register
+<code>$t0</code>, then the contents of <code>$t0</code> are stored in
+the location pointed to by <code>$a0</code> (which contains the value
+of <i>p</i>).
+</p></blockquote>
+
+<p align="JUSTIFY">We already know about memory leaks and dangling
+pointers.  This concept of <i>data persistence</i> leads us to ask how
+long pointers last within a program.  We discuss this in the following
+section.
+
+</p><h4>2.6.2. Storage Lifetime and Scope</h4>
+
+<p align="JUSTIFY">There are three types of pointer allocation that
+affect the storage lifetime and scope of the pointer:
+
+</p><ul><li><p align="JUSTIFY"><i>Automatic</i> (stack allocated) pointers
+    typically reference local variables of a function.  These pointers
+    are volatile, in the sense that they are created at the function
+    call, and are released (freed) upon return to the calling
+    procedure.  As a result, the scope of the pointer is the called
+    function.
+
+</p><p> </p></li><li><p align="JUSTIFY"><i>Heap allocated</i> pointers are created
+    by in invocation to the <code>malloc</code> routine, and are 
+    released when explicitly freed.  Their scope can be local or
+    global to a given program.  If not freed, they can cause memory
+    leaks.
+
+</p><p> </p></li><li><p align="JUSTIFY"><i>External</i> (static) pointers are created
+    at the program's invocation, and exist for the length of the program.
+    Thus, their scope is global to the program.
+</p></li></ul>
+
+<p align="JUSTIFY">We will next examine how we can manipulate these
+different types of pointers to achieve different addressing modes.
+
+</p><h4>2.6.3. Pointer Arithmetic</h4>
+
+<p align="JUSTIFY">Various types of arithmetic operations can be 
+performed on pointers.  For example, addresses can be incremented
+and decremented, assigned, dereferenced, etc.  The following example
+is illustrative of memory operations, where the array <i>z</i>
+contains various values referenced by pointers:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-pointers-Ex3.gif"> </p>
+
+<p align="JUSTIFY">Note that there are two instances of mistakes using
+pointers.  The first involves hardcoding a direct address into a
+C-like program - a very bad idea, for two reasons: (1) one can
+reference a protected part of memory where system resources reside, or
+(2) future operating system or compiler revisions might not support
+such a modification.  The second error, which is an illegal operation,
+involves trying to make the entire array z point to the scalar
+variable y, using the statement <code>z = &amp;y</code>.
+
+</p><blockquote>
+<p align="JUSTIFY"><b>Example 14.</b> As a further illustration of
+pointer usage, consider the following C code:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-pointers-Ex4.gif"> </p>
+
+<p align="JUSTIFY">which is translated into the following assembly
+language instructions:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-pointers-Ex5.gif"> </p>
+
+<p align="JUSTIFY">Note that the argument in <code>$a0</code>
+dereferences the actual argument variable (a string <i>s</i>), so that
+the pointer <i>p</i> points to the characters in the argument.  The
+<code>addi</code> instruction is used to increment <i>p</i> so it
+points to the next character in the string.  In both cases, the
+<code>lbu</code> (load byte unsigned) instruction is used to effect
+the dereferencing.
+
+</p><p align="JUSTIFY">After the loop completes, the length of the string is
+equal to the different <i>p</i> - <i>s</i>.  This is yet another example of
+pointers can be used both as addresses and as counters.  This makes the
+assembly code much more compact, and thus produces fewer instructions.
+</p></blockquote>
+
+<p align="JUSTIFY">When using pointers in an argument list, we implement
+the latter of the follwoing two argument passing modes:
+
+</p><ul><p></p><li><p align="JUSTIFY"><i>Call by Value</i> passes a <i>copy</i>
+of the item in a given argument position to the function or procedure.
+
+</p><p></p></li><li><p align="JUSTIFY"><i>Call by Reference</i> passes a
+<i>pointer</i> to a given argument to the function or procedure.
+</p></li></ul>
+
+<p align="JUSTIFY">In practice, it is easier to pass single word variables
+by value, since this avoids the overhead of pointer manipulation.
+
+</p><h4>2.6.4. Use of Pointers in Array Manipulation</h4>
+
+<p align="JUSTIFY">Suppose we have an array (e.g., <b>a</b>[100]) in the
+argument list.  This can be passed in two ways.  The Pascal language
+uses call-by-value (e.g., copies the entire 100 words of <b>a</b> onto
+the stack).  This is prohibitively costly for large arrays.  In
+contrast, C (call-by-reference) passes a pointer (one word long) to
+the array <b>a</b>, with the pointer being stored in a register for
+fast manipulation.
+
+</p><p align="JUSTIFY">There are four versions of array manipulation for a
+binary arithmetic operation (e.g., adding arrays <b>a</b>[100] +
+<b>b</b>[100] and putting the result in <b>c</b>[100]).
+
+</p><p></p><ol><p></p><li>Result array is passed to the function or procedure.
+
+<p></p></li><li>The result is put in a local array on the stack, and a pointer
+       to the local array is passed to the function or procedure.
+
+<p></p></li><li>The result array is allocated on the heap.
+
+<p></p></li><li>The result array is declared static.
+</li></ol>
+
+<p align="JUSTIFY">We discuss each of these techniques with an example,
+as follows.  Each example assumes that we have an array addition
+routine called <code>sumarray</code>.
+
+</p><blockquote>
+<p align="JUSTIFY"><b>Example 15 (Array passed to Function).</b>  Given the
+following C code:
+
+</p><pre>        <b>int a[100],b[100],c[100];
+         sumarray(a, b, c);</b>
+</pre>
+
+<p align="JUSTIFY">the meaning of this C calling convention is 
+
+</p><pre>         <b>sumarray(&amp;a[0], &amp;b[0], &amp;c[0]);</b>  </pre>
+
+<p align="JUSTIFY">If we want to use assembly language to  pass
+pointers that reference arrays, then we need to compute the address
+size (.e.g, a 100-element array requires 400 bytes of storage in
+MIPS).  This is done as follows:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-pointarray-Ex1.gif"> </p>
+
+<p align="JUSTIFY">Note that the <code>addi</code> instruction is used
+to set the base addresses, with a[0] starting at $gp.  Then, the
+<code>jal</code> instruction is used to invoke <code>sumarray</code>, as discussed
+previously.  The C code and compiled assembly code for the function
+<code>sumarray</code> looks like this:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-pointarray-Ex1comp.gif"> </p>
+</blockquote>
+
+<p align="JUSTIFY">The second method is to put the result array on the
+stack as a local array, then return the pointer to that array to the
+function or procedure, as follows.
+
+</p><blockquote>
+<p align="JUSTIFY"><b>Example 16 (Array Pointer passed to Function).</b>
+In the following code, notice how the prologue portion of the assembly
+code uses the <code>addi</code> instruction to allocate space for the
+result array <b>c</b>, set the pointer, and pass it to
+<code>$v0</code> (the first result register):
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-pointarray-Ex2.gif"> </p>
+
+<p align="JUSTIFY">The loop is straightforward, and begins with a limits
+check that branches to the exit point if the loop index (in register
+<code>$a0</code>) is exceeded.  Next, the operands a[i] and b[i] are
+respectively loaded into registers <code>$t1</code> and
+<code>$t2</code>, the addition operation is performed, and the result
+is stored in memory location referenced by <code>$t3</code> with zero
+offset.  The input operand pointers and result pointer are reset, then
+the jump instruction transfers control to the loopback point.
+</p></blockquote>
+
+<p align="JUSTIFY">The next two techniques are not used very often.
+Placing the array on the heap renders the array information not reused
+unless freed.  This leads to memory leaks.  Using static arrays is
+memory-consumptive, but tends to be employed in C libraries.
+
+</p><blockquote>
+<p align="JUSTIFY"><b>Example 17 (Result Allocated on Heap).</b> Given
+the following C code:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-pointarray-Ex3.gif"> </p>
+
+<p align="JUSTIFY">the compiled version is as follows:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-pointarray-Ex3comp.gif"> </p>
+
+<p align="JUSTIFY">Here, the heap allocation is accomplished by the
+call <code>jal malloc</code>, which is necessarily bracketed by
+the saving and restoring of the arguments.  Note the many additional
+lines of code that are required beyond those shown in Example 16.
+As a result, memory allocation looks like this:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-pointarray-Ex3heap.gif"> </p>
+
+</blockquote>
+
+<p align="JUSTIFY">The final example uses static memory for array
+storage.
+
+</p><blockquote>
+<p align="JUSTIFY"><b>Example 18 (Static Memory).</b> Given the
+following source code fragment:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-pointarray-Ex4.gif"> </p>
+
+<p align="JUSTIFY">Note that the <code>static</code> directive
+causes the array to be in static memory, as shown below:
+
+</p><p align="CENTER"><img src="./Organization of Computer Systems_ ISA, Machine Language, Number Systems_files/MIPS-pointarray-Ex4mem.gif"> </p>
+
+<p align="JUSTIFY">As a result, the array <b>c</b> will be changed
+next time <code>sumarray</code> is invoked.  This method is typically
+used in C libraries, and is very expensive from the viewpoint of
+memory usage.
+</p></blockquote>
+
+</blockquote>
+<p></p><hr><blockquote>
+<p align="JUSTIFY">
+This concludes our overview of ISA, instruction set, and addressing
+issues. We next discuss integer and floating point arithmetic.
+</p></blockquote>
+
+<p></p><hr><p>
+</p><blockquote>
+<h3>References</h3>
+
+<p align="JUSTIFY">[Maf01] Mafla, E. <i>Course Notes, CDA3101</i>, at URL <code>http://www.cise.ufl.edu/~emafla/</code> (as-of 11 Apr 2001).
+
+</p><p align="JUSTIFY">[Pat98] Patterson, D.A. and
+J.L. Hennesey. <i>Computer Organization and Design: The
+Hardware/Software Interface</i>, Second Edition, San Francisco, CA:
+Morgan Kaufman (1998).
+
+
+</p></blockquote>
+
+<p></p><hr>
+
+
+</body></html>
