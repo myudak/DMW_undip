@@ -1,0 +1,22 @@
+SISCER - 24 April 2020
+----------------------------
+Dicari yg paling mendekati optimal
+Stiap mencapai suatu state, nanti dicheck apakah goal test
+Kelemahan : kita harus definisi semua state, ketika kompleks maka resource banyak
+Maka ada pendekatan knowledge based agent
+Pengetahuan awal terbatas, tapi ketika agent bertemu dengan kondisi lain, maka agent akan merumuskan sendiri (belajar sendiri) atau REASONING
+KOMPONEN :
+1. BASIS DATA PENGETAHUAN (KNOWLEDGE BASE) : isinya kalimat
+Kalimat diubah jd bahasa formal, Sentence diekspresikan  dg logika proposisi misalnya
+2. INFERENCE ENGINE
+OPERASI:
+1. Tell, menambah pengetahuan baru sesuai konsep yg ia terima
+2. Ask, agent melakukan reasoning sesuai yg sudah ada di knowledge base
+PENDEKATAN:
+1. Prosedural
+2. Reasoning, cth: Prolog. Dia sudah punya mesin inferensi, hanya cukup beri informasi
+Biasanya kesalahan saat representasi pengtahuan dari kita
+
+LOGIKA KRL : hanya true/ false saja
+
+
